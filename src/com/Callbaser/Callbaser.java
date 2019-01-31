@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 public class Callbaser {
 
     final static Logger log = Logger.getLogger(Callbaser.class.getName());
-    final static String monPath = "F:\\ДИТ\\Управление Автоматизации\\Обработки слияние";
 
     static{
         final LogManager logManager = LogManager.getLogManager();
@@ -30,13 +29,22 @@ public class Callbaser {
         }catch (Exception e){
             log.log(Level.WARNING,"Error loading logging config",e);
         }
+
+        try {
+            Config.load();
+        } catch (CallbaserConfigLoadException e) {
+            log.log(Level.WARNING,"Parse error loading config",e);
+        } catch (IOException e) {
+            log.log(Level.WARNING,"File error loading config",e);
+        }
+
     }
 
     public static void main(String[] args) throws IOException, InterruptedException{
 
         WatchService watchService = FileSystems.getDefault().newWatchService();
 
-        Path path = Paths.get(monPath);
+        Path path = Paths.get(Config.MonitoringFolder);
 
         path.register(
                 watchService,
@@ -49,7 +57,7 @@ public class Callbaser {
         while ((key = watchService.take()) != null) {
             for (WatchEvent<?> event : key.pollEvents()) {
                 log.fine("File detected: " + event.context().toString());
-                printPDF(monPath + "\\" + event.context().toString());
+                printPDF(Config.MonitoringFolder + "\\" + event.context().toString());
 
 
             }
@@ -63,7 +71,7 @@ public class Callbaser {
 
         try {
 
-            PrintService ps = PrintUtility.findPrintService("\\\\ps01dskgrad\\922_ZDesigner_ZT410");
+            PrintService ps = PrintUtility.findPrintService(Config.PrinterName);
             File file = new File(filePath);
             PDDocument doc = PDDocument.load(file);
             PrinterJob job = PrinterJob.getPrinterJob();
