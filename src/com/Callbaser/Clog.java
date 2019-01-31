@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 public class Clog {
 
-    final static Logger log = Logger.getLogger(Callbaser.class.getName());
+    private final static Logger log = Logger.getLogger(Callbaser.class.getName());
 
     static {
         final LogManager logManager = LogManager.getLogManager();
@@ -19,11 +19,12 @@ public class Clog {
         }
     }
 
-    static void info(String msg){
+    static void info(String msg) {
         log.log(Level.INFO, msg);
     }
-    static void warn(String msg,Exception e){
-        log.log(Level.WARNING, "Exception occur: " + msg,e);
+
+    static void warn(String msg, Exception e) {
+        log.log(Level.WARNING, "Exception occur: " + msg, e);
     }
 
 }

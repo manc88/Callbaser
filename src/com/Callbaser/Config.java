@@ -1,5 +1,6 @@
 package com.Callbaser;
 
+import javax.print.PrintService;
 import java.io.IOException;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -9,7 +10,8 @@ public class Config {
 
     public static boolean ready = false;
     public static String MONITORFOLDER;
-    public static String PRINTSERVICE;
+    private static String PRINTSERVICE;
+    public static PrintService ps;
 
     static {
         load();
@@ -53,8 +55,9 @@ public class Config {
             ready = false;
         }
 
+        ps = PrintUtility.findPrintService(Config.PRINTSERVICE);
 
-        ready = true;
+        ready = !MONITORFOLDER.isEmpty() && ps != null;
 
     }
 
