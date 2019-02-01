@@ -4,6 +4,7 @@ package com.Callbaser;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.LocalDateTime;
 
 
 public class Callbaser {
@@ -23,11 +24,10 @@ public class Callbaser {
                 //StandardWatchEventKinds.ENTRY_DELETE,
                 //StandardWatchEventKinds.ENTRY_MODIFY
         );
-        Clog.info("Start callbaser service");
+        Clog.info("Start callbaser service at " + LocalDateTime.now());
         WatchKey key;
         while ((key = watchService.take()) != null) {
             for (WatchEvent<?> event : key.pollEvents()) {
-                Clog.info("File detected: " + event.context().toString());
                 String fileName = event.context().toString();
                 if(Config.USEFILELIST){
                     if (Utils.isChl(fileName)) {

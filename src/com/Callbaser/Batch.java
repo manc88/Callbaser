@@ -37,7 +37,7 @@ public class Batch {
     public Batch(String FileName, String path) {
         confFileName = FileName;
         folderPath = path;
-        fullConfFilePath = Paths.get(path,confFileName).toString();
+        fullConfFilePath = Paths.get(path, confFileName).toString();
         load();
     }
 
@@ -66,15 +66,16 @@ public class Batch {
                     cleanup = true;
                     continue;
                 }
+
                 if (nextLine.contains("#SKIPNOFOUND")) {
                     skipNoFound = true;
                     continue;
                 }
+
                 if (Utils.isPDF(nextLine)) {
                     Path path = Paths.get(folderPath, rawLine.trim());
                     files.add(new File(path.toUri()));
                 }
-
             }
         } catch (Exception e) {
             Clog.warn("Loading batch error:" + this.confFileName, e);
@@ -86,50 +87,17 @@ public class Batch {
 
     public void print() {
 
-        for (File f : files) {
+       for (File f : files) {
             printPDF(f);
         }
 
-        if (cleanup) {
-            cleanup();
-        }
-
     }
 
-    private void cleanup() {
-        for (File f : files) {
-            try {
-                Files.deleteIfExists(f.toPath());
-            } catch (IOException e) {
-                Clog.warn("Clean up error:", e);
-            }
+    private void printPDF(File file) {
 
-        }
-    }
-
-    private boolean printPDF(File file) {
-
-        try(PDDocument doc = PDDocument.load(file)) {
-            PrinterJob job = PrinterJob.getPrinterJob();
-            job.setPrintService(Config.ps);
-            job.setPageable(new PDFPageable(doc));
-            job.print();
-            Utils.sleep(1000);
-            Clog.info("File printed on service: " + Config.ps.getName());
-
-        } catch (PrinterException e) {
-            e.printStackTrace();
-            Clog.warn("Print failed", e);
-            return false;
-        } catch (IOException e) {
-            Clog.warn("File IO exception", e);
-            return false;
-        } catch (Exception e) {
-            Clog.warn("Unknown exception", e);
-            return false;
-        }
-
-        return true;
+        PrintTask pt = new PrintTask(file,cleanup);
+        Thread t = new Thread(pt);
+        t.start();
 
     }
 
