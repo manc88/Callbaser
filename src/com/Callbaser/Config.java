@@ -35,7 +35,7 @@ public class Config {
                     if (f.getType() == int.class) {
                         f.set(Config.class, Integer.parseInt(value));
                     }else if(f.getType()==boolean.class){
-                        f.set(Config.class, value.toUpperCase().equals("TRUE"));
+                        f.set(Config.class, value.toUpperCase().equals("TRUE") || value.toUpperCase().equals("YES") );
                     }
                     else {
                         f.set(Config.class, value);
