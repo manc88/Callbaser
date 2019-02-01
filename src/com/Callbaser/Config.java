@@ -11,6 +11,7 @@ public class Config {
     public static boolean ready = false;
     public static String MONITORFOLDER;
     private static String PRINTSERVICE;
+    public static boolean USEFILELIST;
     public static PrintService ps;
 
     static {
@@ -33,7 +34,10 @@ public class Config {
                     Field f = Config.class.getDeclaredField(key);
                     if (f.getType() == int.class) {
                         f.set(Config.class, Integer.parseInt(value));
-                    } else {
+                    }else if(f.getType()==boolean.class){
+                        f.set(Config.class, value.toUpperCase().equals("TRUE"));
+                    }
+                    else {
                         f.set(Config.class, value);
                     }
                 }

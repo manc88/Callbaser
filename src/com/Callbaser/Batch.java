@@ -20,6 +20,11 @@ public class Batch {
     private boolean skipNoFound = false;
     private String confFileName;
     private String folderPath;
+
+    public void setReady() {
+        ready = !files.isEmpty();
+    }
+
     private boolean ready;
     private List<File> files = new ArrayList<>();
     private String fullConfFilePath;
@@ -34,6 +39,16 @@ public class Batch {
         folderPath = path;
         fullConfFilePath = Paths.get(path,confFileName).toString();
         load();
+    }
+
+    public Batch(File f) {
+        confFileName = "";
+        folderPath = "";
+        fullConfFilePath = "";
+        files.add(f);
+        setReady();
+        cleanup = Config.USEFILELIST;
+
     }
 
     private void load() {
@@ -63,10 +78,9 @@ public class Batch {
             }
         } catch (Exception e) {
             Clog.warn("Loading batch error:" + this.confFileName, e);
-            ready = false;
         }
 
-        ready = !files.isEmpty();
+        setReady();
 
     }
 
@@ -77,7 +91,6 @@ public class Batch {
         }
 
         if (cleanup) {
-            Utils.sleep(1000);
             cleanup();
         }
 
@@ -86,21 +99,22 @@ public class Batch {
     private void cleanup() {
         for (File f : files) {
             try {
-                Files.delete(f.toPath());
+                Files.deleteIfExists(f.toPath());
             } catch (IOException e) {
                 Clog.warn("Clean up error:", e);
             }
+
         }
     }
 
     private boolean printPDF(File file) {
 
-        try {
-            PDDocument doc = PDDocument.load(file);
+        try(PDDocument doc = PDDocument.load(file)) {
             PrinterJob job = PrinterJob.getPrinterJob();
             job.setPrintService(Config.ps);
             job.setPageable(new PDFPageable(doc));
             job.print();
+            Utils.sleep(1000);
             Clog.info("File printed on service: " + Config.ps.getName());
 
         } catch (PrinterException e) {

@@ -1,6 +1,7 @@
 package com.Callbaser;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
@@ -27,12 +28,20 @@ public class Callbaser {
         while ((key = watchService.take()) != null) {
             for (WatchEvent<?> event : key.pollEvents()) {
                 Clog.info("File detected: " + event.context().toString());
-                if (Utils.isChl(event.context().toString())) {
-                    Batch batch = new Batch(event.context().toString(), Config.MONITORFOLDER);
-                    if (batch.isReady()) {
+                String fileName = event.context().toString();
+                if(Config.USEFILELIST){
+                    if (Utils.isChl(fileName)) {
+                        Batch batch = new Batch(fileName, Config.MONITORFOLDER);
+                        if (batch.isReady()) {
+                            batch.print();
+                        } else {
+                            Clog.warn("Batch not ready! " + fileName, new Exception());
+                        }
+                    }else if(Utils.isPDF(fileName)){
+                        Batch batch = new Batch(new File(Paths.get(Config.MONITORFOLDER,fileName).toUri()));
                         batch.print();
-                    } else {
-                        Clog.warn("Batch not ready! " + event.context().toString(), new Exception());
+                    }else{
+                        Clog.warn("Unxpected file type" + fileName, new Exception());
                     }
                 }
             }
